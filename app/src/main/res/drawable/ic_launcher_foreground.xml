@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from ADD/images/gradus.svg's geometry: half a sun and half a snowflake
+     split along the 45-degree diagonal.      Scaled to 0.8 so the rays stay inside the adaptive icon's safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group android:pivotX="54" android:pivotY="54" android:scaleX="0.8" android:scaleY="0.8">
+        <group>
+            <clip-path android:pathData="M0,0 L105.88,0 L0,105.88 Z" />
+            <path android:fillColor="#FFC21A" android:pathData="M33,54 a21,21 0 1,0 42,0 a21,21 0 1,0 -42,0 Z" />
+            <path android:strokeColor="#FFC21A" android:strokeWidth="6" android:strokeLineCap="round" android:pathData="M29.05,66.71 L20.14,71.25 M26.34,49.62 L16.47,48.06 M34.20,34.20 L27.13,27.13 M49.62,26.34 L48.06,16.47 M66.71,29.05 L71.25,20.14" />
+        </group>
+        <group>
+            <clip-path android:pathData="M108,2.12 L108,108 L2.12,108 Z" />
+            <path android:strokeColor="#FFFFFF" android:strokeWidth="6" android:strokeLineCap="round" android:pathData="M54.00,54.00 L84.91,45.72 M74.28,48.56 L78.51,39.50 M74.28,48.56 L82.48,54.30 M54.00,54.00 L76.63,76.63 M68.85,68.85 L78.81,67.98 M68.85,68.85 L67.98,78.81 M54.00,54.00 L45.72,84.91 M48.56,74.28 L54.30,82.48 M48.56,74.28 L39.50,78.51" />
+        </group>
+    </group>
+</vector>
