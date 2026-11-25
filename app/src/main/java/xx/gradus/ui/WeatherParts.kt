@@ -134,9 +134,6 @@ fun fetchedTimeText(fetchedAt: Long): String = DateUtils.formatSameDayTime(
     java.text.DateFormat.SHORT,
 ).toString()
 
-/** "Wind, m/s": a caption and the unit its value is in. */
-fun captionWithUnit(caption: String, unit: String) = "$caption, $unit"
-
 val HourFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
 // ---------- Wind ----------
@@ -153,8 +150,6 @@ fun WindView(
     textStyle: TextStyle,
     modifier: Modifier = Modifier,
     arrowSize: Dp = 16.dp,
-    /** Written small after the speed when given; the hourly list names it once, in its captions. */
-    unit: String? = null,
 ) {
     val point = compassPoint(direction)
     val letters = stringArrayResource(R.array.compass_points)
@@ -182,32 +177,14 @@ fun WindView(
                 }
             }
         }
-        if (unit != null) {
-            FigureWithUnit(speedText, unit, textStyle)
-        } else {
-            Text(speedText, style = textStyle, maxLines = 1, softWrap = false)
-        }
+        Text(speedText, style = textStyle, maxLines = 1, softWrap = false)
     }
 }
 
-/** A figure written large with its unit small after it, on one baseline: "765 mmHg". */
-@Composable
-fun FigureWithUnit(figure: String, unit: String, figureStyle: TextStyle, modifier: Modifier = Modifier) {
-    Row(modifier) {
-        Text(figure, Modifier.alignByBaseline(), style = figureStyle, maxLines = 1, softWrap = false)
-        Text(
-            unit,
-            Modifier.alignByBaseline().padding(start = 3.dp),
-            style = MaterialTheme.typography.bodySmall,
-            maxLines = 1,
-            softWrap = false,
-        )
-    }
-}
 
 /** Drawn pointing up, then turned to where the wind goes: half a turn from where it comes from. */
 @Composable
-private fun WindArrow(fromDegrees: Double, size: Dp) {
+fun WindArrow(fromDegrees: Double, size: Dp) {
     val color = LocalContentColor.current
     Canvas(Modifier.size(size).rotate((fromDegrees + 180.0).toFloat())) {
         val w = this.size.width
@@ -327,6 +304,27 @@ fun TempRangeBar(min: Double, max: Double, weekMin: Double, weekMax: Double, mod
             drawRect(WarmText, topLeft = Offset(zero, 0f), size = Size(left + width - zero, size.height))
         }
     }
+}
+
+// ---------- Precipitation ----------
+
+/** Rain or snow under this much is not worth a mention. */
+private const val NOTABLE_PRECIPITATION_MM = 0.1
+
+/** "1,3 mm" white on blue; nothing at all when it stays dry. */
+@Composable
+fun PrecipitationPill(mm: Double) {
+    if (mm.isNaN() || mm < NOTABLE_PRECIPITATION_MM) return
+    Text(
+        precipitationText(mm),
+        style = MaterialTheme.typography.bodyMedium,
+        color = Color.White,
+        maxLines = 1,
+        softWrap = false,
+        modifier = Modifier
+            .background(RainText, RoundedCornerShape(50))
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+    )
 }
 
 // ---------- Layout ----------

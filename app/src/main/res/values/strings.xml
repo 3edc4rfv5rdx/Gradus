@@ -24,7 +24,6 @@
     <string name="wind">Wind</string>
     <string name="humidity">Humidity</string>
     <string name="pressure">Pressure</string>
-    <string name="precipitation">Precip</string>
     <string name="uv_index">UV</string>
     <string name="hours_minutes">%1$d h %2$d min</string>
     <string name="unit_ms">m/s</string>

@@ -24,7 +24,7 @@ class WeatherTest {
             "time": ["2026-11-24T19:00", "2026-11-24T20:00", "2026-11-24T21:00"],
             "temperature_2m": [3.1, 2.4, null],
             "relative_humidity_2m": [55, 57, 60],
-            "precipitation_probability": [0, 5, null],
+            "precipitation": [0.0, 0.4, null],
             "weather_code": [0, 1, null],
             "wind_speed_10m": [3.5, 3.9, 4.0],
             "wind_direction_10m": [30, 40, 50],
@@ -62,7 +62,7 @@ class WeatherTest {
         val f = parseForecast(sample)
         val last = f.hours[2]
         assertTrue(last.temp.isNaN())
-        assertTrue(last.precipitationChance.isNaN())
+        assertTrue(last.precipitation.isNaN())
         assertEquals(NO_CODE, last.code)
         assertNull(f.days[1].sunrise)
         assertTrue(f.days[1].uvIndexMax.isNaN())

@@ -1,6 +1,5 @@
 package xx.gradus.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -38,9 +35,6 @@ import xx.gradus.percent
 import xx.gradus.pressureIn
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-
-/** Rain or snow under this much in a day is not worth a mention in the week list. */
-private const val NOTABLE_PRECIPITATION_MM = 0.1
 
 /** The weather now, and the days ahead under it. */
 @Composable
@@ -128,26 +122,19 @@ private fun CurrentDetails(forecast: Forecast) {
         Modifier.pullUp(DETAILS_OVERLAP).fillMaxWidth().padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.Bottom,
     ) {
-        // The captions bare, the units beside the figures: one short line each, level
-        // with the sunrise and sunset times under the arc.
+        // Bare figures and bare captions, one short line each, level with the sunrise
+        // and sunset times under the arc; the units are the ones picked in Settings.
         ValueCell(stringResource(R.string.wind), Modifier.weight(1f)) {
-            WindView(
-                now.windDirection,
-                windSpeedText(windUnit, now.windSpeed, now.windGusts),
-                windStyle,
-                value,
-                unit = windUnitLabel(windUnit),
-            )
+            WindView(now.windDirection, windSpeedText(windUnit, now.windSpeed, now.windGusts), windStyle, value)
         }
         // A day without a sunrise and a sunset still keeps the middle, so the sides stay put.
         Box(Modifier.width(SUN_ARC_WIDTH), contentAlignment = Alignment.Center) {
             if (today != null) SunArc(today, now.time)
         }
         ValueCell(stringResource(R.string.pressure), Modifier.weight(1f)) {
-            FigureWithUnit(
+            Text(
                 pressureIn(pressureUnit, now.pressureSeaLevel, now.pressureSurface)?.toString() ?: NO_VALUE,
-                pressureUnitLabel(pressureUnit),
-                value,
+                style = value,
             )
         }
     }
@@ -185,18 +172,7 @@ private fun DayRow(day: Day, weekMin: Double, weekMax: Double) {
         )
         // Start-aligned, so the humidity sits midway between the high and the amount.
         Box(Modifier.width(72.dp), contentAlignment = Alignment.CenterStart) {
-            if (!day.precipitationSum.isNaN() && day.precipitationSum >= NOTABLE_PRECIPITATION_MM) {
-                Text(
-                    precipitationText(day.precipitationSum),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White,
-                    maxLines = 1,
-                    softWrap = false,
-                    modifier = Modifier
-                        .background(RainText, RoundedCornerShape(50))
-                        .padding(horizontal = 6.dp, vertical = 2.dp),
-                )
-            }
+            PrecipitationPill(day.precipitationSum)
         }
     }
 }

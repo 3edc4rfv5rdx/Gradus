@@ -34,7 +34,8 @@ data class Hour(
     val time: LocalDateTime,
     val temp: Double,
     val humidity: Double,
-    val precipitationChance: Double,
+    /** Rain and snow together over the hour, mm. */
+    val precipitation: Double,
     val code: Int,
     val windSpeed: Double,
     val windDirection: Double,
@@ -103,7 +104,7 @@ fun parseForecast(text: String): Forecast {
             time = LocalDateTime.parse(hourTimes.getString(i)),
             temp = h.numAt("temperature_2m", i),
             humidity = h.numAt("relative_humidity_2m", i),
-            precipitationChance = h.numAt("precipitation_probability", i),
+            precipitation = h.numAt("precipitation", i),
             code = h.codeAt("weather_code", i),
             windSpeed = h.numAt("wind_speed_10m", i),
             windDirection = h.numAt("wind_direction_10m", i),

@@ -58,7 +58,7 @@ object AppSettings {
     private val _windUnit = MutableStateFlow(WindUnit.MS)
     val windUnit: StateFlow<WindUnit> = _windUnit.asStateFlow()
 
-    private val _windDirection = MutableStateFlow(WindDirectionStyle.ARROW)
+    private val _windDirection = MutableStateFlow(WindDirectionStyle.LETTERS)
     val windDirection: StateFlow<WindDirectionStyle> = _windDirection.asStateFlow()
 
     private val _tempUnit = MutableStateFlow(TempUnit.CELSIUS)
@@ -77,7 +77,7 @@ object AppSettings {
         val selected = prefs.getString(KEY_SELECTED, null) ?: GPS_KEY
         _selectedKey.value = if (_places.value.any { it.key == selected }) selected else GPS_KEY
         _windUnit.value = enumOr(prefs.getString(KEY_WIND_UNIT, null), WindUnit.MS)
-        _windDirection.value = enumOr(prefs.getString(KEY_WIND_DIRECTION, null), WindDirectionStyle.ARROW)
+        _windDirection.value = enumOr(prefs.getString(KEY_WIND_DIRECTION, null), WindDirectionStyle.LETTERS)
         _pressureUnit.value = enumOr(prefs.getString(KEY_PRESSURE_UNIT, null), PressureUnit.MMHG)
         _tempUnit.value = enumOr(prefs.getString(KEY_TEMP_UNIT, null), TempUnit.CELSIUS)
     }

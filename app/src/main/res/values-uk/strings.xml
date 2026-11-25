@@ -23,7 +23,6 @@
     <string name="wind">Вітер</string>
     <string name="humidity">Вологість</string>
     <string name="pressure">Тиск</string>
-    <string name="precipitation">Опади</string>
     <string name="uv_index">УФ</string>
     <string name="hours_minutes">%1$d год %2$d хв</string>
     <string name="unit_ms">м/с</string>
