@@ -3,6 +3,7 @@
 > N=new feature, E=error fix, F=fine-tune, R=refactor, I=infrastructure
 
 ## Unreleased
+## v0.1.23 (2026-11-25)
 - I: The README describes the app, its install, privacy and build.
 - I: OUT links the universal APK, as the other projects do.
 - F: The hourly list shows rain and snow in mm instead of their chance, with small pictures over its columns; wind direction is in letters by default.
