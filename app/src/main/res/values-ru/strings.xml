@@ -4,8 +4,38 @@
     <string name="tab_hourly">По часам</string>
     <string name="tab_settings">Настройки</string>
     <string name="about">О программе</string>
-    <string name="forecast_pending">Здесь будет прогноз</string>
+    <string name="weather_data_source">Данные о погоде</string>
     <string name="cancel">Отмена</string>
+    <string name="close">Закрыть</string>
+    <string name="remove">Удалить</string>
+    <string name="places">Места</string>
+    <string name="my_location">Моё местоположение</string>
+    <string name="find_city">Найти город</string>
+    <string name="nothing_found">Ничего не найдено</string>
+    <string name="search_failed">Не удалось найти, проверьте подключение</string>
+    <string name="pick_city">Выбрать город</string>
+    <string name="allow">Разрешить</string>
+    <string name="problem_no_permission">Для прогноза по местоположению нужен доступ к геолокации</string>
+    <string name="problem_no_location">Не удалось определить местоположение</string>
+    <string name="problem_network">Не удалось обновить прогноз</string>
+    <string name="updated_at">Обновлено %1$s</string>
+    <string name="feels_like">По ощущениям %1$s</string>
+    <string name="wind">Ветер</string>
+    <string name="humidity">Влажность</string>
+    <string name="pressure">Давление</string>
+    <string name="precipitation">Осадки</string>
+    <string name="uv_index">УФ</string>
+    <string name="hours_minutes">%1$d ч %2$d мин</string>
+    <string name="unit_ms">м/с</string>
+    <string name="unit_kmh">км/ч</string>
+    <string name="unit_mm">мм</string>
+    <string name="unit_hpa">гПа</string>
+    <string name="unit_mmhg">мм рт. ст.</string>
+    <string name="setting_wind_unit">Скорость ветра</string>
+    <string name="setting_wind_direction">Направление ветра</string>
+    <string name="setting_pressure_unit">Давление</string>
+    <string name="wind_style_arrow">Стрелка</string>
+    <string name="wind_style_letters">Буквы</string>
     <string name="setting_theme">Тема</string>
     <string name="setting_accent">Цвет</string>
     <string name="setting_language">Язык</string>
@@ -14,4 +44,37 @@
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>
     <string name="language_system">Системный</string>
+    <string name="wmo_clear">Ясно</string>
+    <string name="wmo_mostly_clear">Преимущественно ясно</string>
+    <string name="wmo_partly_cloudy">Переменная облачность</string>
+    <string name="wmo_overcast">Пасмурно</string>
+    <string name="wmo_fog">Туман</string>
+    <string name="wmo_drizzle">Морось</string>
+    <string name="wmo_freezing_drizzle">Ледяная морось</string>
+    <string name="wmo_light_rain">Небольшой дождь</string>
+    <string name="wmo_rain">Дождь</string>
+    <string name="wmo_heavy_rain">Сильный дождь</string>
+    <string name="wmo_freezing_rain">Ледяной дождь</string>
+    <string name="wmo_light_snow">Небольшой снег</string>
+    <string name="wmo_snow">Снег</string>
+    <string name="wmo_heavy_snow">Сильный снег</string>
+    <string name="wmo_snow_grains">Снежная крупа</string>
+    <string name="wmo_light_showers">Небольшой ливень</string>
+    <string name="wmo_showers">Ливень</string>
+    <string name="wmo_heavy_showers">Сильный ливень</string>
+    <string name="wmo_snow_showers">Снегопад</string>
+    <string name="wmo_thunderstorm">Гроза</string>
+    <string name="wmo_thunderstorm_hail">Гроза с градом</string>
+    <string name="wmo_unknown">Нет данных</string>
+    <!-- From north clockwise, eight points: where the wind blows from. -->
+    <string-array name="compass_points">
+        <item>С</item>
+        <item>СВ</item>
+        <item>В</item>
+        <item>ЮВ</item>
+        <item>Ю</item>
+        <item>ЮЗ</item>
+        <item>З</item>
+        <item>СЗ</item>
+    </string-array>
 </resources>

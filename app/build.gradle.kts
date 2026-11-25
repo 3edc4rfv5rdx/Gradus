@@ -232,4 +232,6 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.core)
     testImplementation(libs.junit)
+    // The real org.json for the JVM tests: android.jar's copy is a stub there.
+    testImplementation(libs.json)
 }

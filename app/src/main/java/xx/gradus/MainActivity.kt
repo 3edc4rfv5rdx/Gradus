@@ -5,12 +5,19 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,11 +39,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.graphics.drawable.toDrawable
 import dev.about.About
 import dev.about.AboutConfig
@@ -47,6 +56,7 @@ import xx.gradus.ui.GradusTheme
 import xx.gradus.ui.HourlyScreen
 import xx.gradus.ui.NavLabelStyle
 import xx.gradus.ui.NowScreen
+import xx.gradus.ui.PlacesDialog
 import xx.gradus.ui.SettingsScreen
 import xx.gradus.ui.WindowDark
 import xx.gradus.ui.WindowLight
@@ -65,6 +75,8 @@ private enum class Tab(val labelRes: Int) {
 }
 
 class MainActivity : ComponentActivity() {
+
+    private val weather: WeatherViewModel by viewModels()
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(localizedContext(newBase))
@@ -91,10 +103,16 @@ class MainActivity : ComponentActivity() {
 
             GradusTheme(themeMode, accentIndex) {
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    MainScreen(onAbout = ::showAbout)
+                    MainScreen(weather, onAbout = ::showAbout)
                 }
             }
         }
+    }
+
+    /** Every way back into the app passes here, the first start included. */
+    override fun onStart() {
+        super.onStart()
+        weather.refreshIfStale()
     }
 
     /**
@@ -127,17 +145,34 @@ class MainActivity : ComponentActivity() {
                 repo = UPDATER_CONFIG.repoName,
                 buildDate = BuildConfig.BUILD_DATE,
                 updates = AboutUpdater(UPDATER_CONFIG),
+                // Open-Meteo's data is CC BY 4.0: the credit goes here.
+                extra = listOf(getString(R.string.weather_data_source) to "Open-Meteo.com"),
             ),
         )
     }
 }
 
 @Composable
-private fun MainScreen(onAbout: () -> Unit) {
+private fun MainScreen(weather: WeatherViewModel, onAbout: () -> Unit) {
     var current by rememberSaveable { mutableStateOf(Tab.NOW) }
+    var pickingPlace by rememberSaveable { mutableStateOf(false) }
+    val state by weather.state.collectAsState()
+    // Whatever the answer, a refresh tells the screen what it now is.
+    val askLocation = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+    ) { weather.refresh() }
+    val requestLocation = { askLocation.launch(LOCATION_PERMISSIONS) }
+    val pickPlace = { pickingPlace = true }
 
     Scaffold(
-        topBar = { AppTopBar(tab = current, onAbout = onAbout) },
+        topBar = {
+            AppTopBar(
+                tab = current,
+                place = state.place,
+                onPickPlace = pickPlace,
+                onAbout = onAbout,
+            )
+        },
         bottomBar = {
             // On a phone with on-screen back/home buttons the bar sits under them unless it is
             // given that inset; with gesture navigation the same inset is a thin strip.
@@ -155,20 +190,31 @@ private fun MainScreen(onAbout: () -> Unit) {
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             when (current) {
-                Tab.NOW -> NowScreen()
-                Tab.HOURLY -> HourlyScreen()
+                Tab.NOW -> NowScreen(weather, requestLocation, pickPlace)
+                Tab.HOURLY -> HourlyScreen(weather, requestLocation, pickPlace)
                 Tab.SETTINGS -> SettingsScreen()
             }
         }
     }
+
+    if (pickingPlace) PlacesDialog(weather, onDismiss = { pickingPlace = false })
 }
 
-/** The current tab's name; Settings also carries the (i) that opens About, as in Steps. */
+/**
+ * On the forecast tabs, the place the forecast is for, tapped to pick another;
+ * on Settings, the tab's name and the (i) that opens About, as in Steps.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AppTopBar(tab: Tab, onAbout: () -> Unit) {
+private fun AppTopBar(tab: Tab, place: Place?, onPickPlace: () -> Unit, onAbout: () -> Unit) {
     TopAppBar(
-        title = { Text(stringResource(tab.labelRes)) },
+        title = {
+            if (tab == Tab.SETTINGS) {
+                Text(stringResource(tab.labelRes))
+            } else {
+                PlaceTitle(place, onPickPlace)
+            }
+        },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = Color.White,
@@ -182,6 +228,30 @@ private fun AppTopBar(tab: Tab, onAbout: () -> Unit) {
             }
         },
     )
+}
+
+/** The place's name over its region, with the mark that says it opens a choice. */
+@Composable
+private fun PlaceTitle(place: Place?, onClick: () -> Unit) {
+    Row(Modifier.clickable(onClick = onClick), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f, fill = false)) {
+            Text(
+                place?.name ?: stringResource(R.string.my_location),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            val region = place?.region.orEmpty()
+            if (region.isNotEmpty()) {
+                Text(
+                    region,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        Icon(Icons.Filled.ArrowDropDown, contentDescription = stringResource(R.string.places))
+    }
 }
 
 /**

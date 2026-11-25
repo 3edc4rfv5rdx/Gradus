@@ -31,21 +31,27 @@ import androidx.compose.ui.unit.dp
 import dev.updater.Updater
 import xx.gradus.AppSettings
 import xx.gradus.R
+import xx.gradus.PressureUnit
 import xx.gradus.ThemeMode
+import xx.gradus.WindDirectionStyle
+import xx.gradus.WindUnit
 import xx.gradus.currentLanguageTag
 import xx.gradus.setLanguageTag
 import xx.gradus.supportedLanguages
 
 /** Which editor is open; only one can be at a time. */
-private enum class Editing { NONE, THEME, ACCENT, LANGUAGE }
+private enum class Editing { NONE, THEME, ACCENT, LANGUAGE, WIND_UNIT, WIND_DIRECTION, PRESSURE_UNIT }
 
-/** Theme, accent colour, language, and the start-up update check. */
+/** Units and how the wind is shown, then theme, accent colour, language, and the start-up update check. */
 @Composable
 fun SettingsScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val activity = LocalActivity.current
     val themeMode by AppSettings.themeMode.collectAsState()
     val accentIndex by AppSettings.accentIndex.collectAsState()
+    val windUnit by AppSettings.windUnit.collectAsState()
+    val windDirection by AppSettings.windDirection.collectAsState()
+    val pressureUnit by AppSettings.pressureUnit.collectAsState()
 
     val systemLabel = stringResource(R.string.language_system)
     val languages = remember(context, systemLabel) { supportedLanguages(context, systemLabel) }
@@ -61,6 +67,24 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
+        SettingRow(
+            label = stringResource(R.string.setting_wind_unit),
+            value = windUnitLabel(windUnit),
+            onClick = { editing = Editing.WIND_UNIT },
+        )
+        HorizontalDivider()
+        SettingRow(
+            label = stringResource(R.string.setting_wind_direction),
+            value = stringResource(windDirection.labelRes()),
+            onClick = { editing = Editing.WIND_DIRECTION },
+        )
+        HorizontalDivider()
+        SettingRow(
+            label = stringResource(R.string.setting_pressure_unit),
+            value = pressureUnitLabel(pressureUnit),
+            onClick = { editing = Editing.PRESSURE_UNIT },
+        )
+        HorizontalDivider()
         SettingRow(
             label = stringResource(R.string.setting_theme),
             value = stringResource(themeMode.labelRes()),
@@ -150,6 +174,42 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             },
         )
 
+        Editing.WIND_UNIT -> ChoiceDialog(
+            title = stringResource(R.string.setting_wind_unit),
+            options = WindUnit.entries,
+            selected = windUnit,
+            label = { windUnitLabel(it) },
+            onDismiss = { editing = Editing.NONE },
+            onPick = {
+                AppSettings.setWindUnit(context, it)
+                editing = Editing.NONE
+            },
+        )
+
+        Editing.WIND_DIRECTION -> ChoiceDialog(
+            title = stringResource(R.string.setting_wind_direction),
+            options = WindDirectionStyle.entries,
+            selected = windDirection,
+            label = { stringResource(it.labelRes()) },
+            onDismiss = { editing = Editing.NONE },
+            onPick = {
+                AppSettings.setWindDirection(context, it)
+                editing = Editing.NONE
+            },
+        )
+
+        Editing.PRESSURE_UNIT -> ChoiceDialog(
+            title = stringResource(R.string.setting_pressure_unit),
+            options = PressureUnit.entries,
+            selected = pressureUnit,
+            label = { pressureUnitLabel(it) },
+            onDismiss = { editing = Editing.NONE },
+            onPick = {
+                AppSettings.setPressureUnit(context, it)
+                editing = Editing.NONE
+            },
+        )
+
         Editing.NONE -> Unit
     }
 }
@@ -169,4 +229,9 @@ private fun ThemeMode.labelRes(): Int = when (this) {
     ThemeMode.SYSTEM -> R.string.theme_system
     ThemeMode.LIGHT -> R.string.theme_light
     ThemeMode.DARK -> R.string.theme_dark
+}
+
+private fun WindDirectionStyle.labelRes(): Int = when (this) {
+    WindDirectionStyle.ARROW -> R.string.wind_style_arrow
+    WindDirectionStyle.LETTERS -> R.string.wind_style_letters
 }

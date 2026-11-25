@@ -29,6 +29,12 @@ object AppSettings {
     private const val KEY_THEME = "theme_mode"
     private const val KEY_ACCENT = "accent_index"
     private const val KEY_LANGUAGE = "language"
+    private const val KEY_PLACES = "places"
+    private const val KEY_SELECTED = "selected_place"
+    private const val KEY_GPS_PLACE = "gps_place"
+    private const val KEY_WIND_UNIT = "wind_unit"
+    private const val KEY_WIND_DIRECTION = "wind_direction"
+    private const val KEY_PRESSURE_UNIT = "pressure_unit"
 
     private val _themeMode = MutableStateFlow(ThemeMode.SYSTEM)
     val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
@@ -36,10 +42,80 @@ object AppSettings {
     private val _accentIndex = MutableStateFlow(0)
     val accentIndex: StateFlow<Int> = _accentIndex.asStateFlow()
 
+    /** The places the user has added, in the order added. */
+    private val _places = MutableStateFlow<List<Place>>(emptyList())
+    val places: StateFlow<List<Place>> = _places.asStateFlow()
+
+    /** Which forecast is shown: [GPS_KEY], or a saved place's [Place.key]. */
+    private val _selectedKey = MutableStateFlow(GPS_KEY)
+    val selectedKey: StateFlow<String> = _selectedKey.asStateFlow()
+
+    /** Where the phone was at the last fix, with its name; null before the first one. */
+    private val _gpsPlace = MutableStateFlow<Place?>(null)
+    val gpsPlace: StateFlow<Place?> = _gpsPlace.asStateFlow()
+
+    private val _windUnit = MutableStateFlow(WindUnit.MS)
+    val windUnit: StateFlow<WindUnit> = _windUnit.asStateFlow()
+
+    private val _windDirection = MutableStateFlow(WindDirectionStyle.ARROW)
+    val windDirection: StateFlow<WindDirectionStyle> = _windDirection.asStateFlow()
+
+    private val _pressureUnit = MutableStateFlow(PressureUnit.MMHG)
+    val pressureUnit: StateFlow<PressureUnit> = _pressureUnit.asStateFlow()
+
     fun load(context: Context) {
         val prefs = prefs(context)
         _themeMode.value = enumOr(prefs.getString(KEY_THEME, null), ThemeMode.SYSTEM)
         _accentIndex.value = prefs.getInt(KEY_ACCENT, 0).coerceIn(0, ACCENT_COUNT - 1)
+        _places.value = prefs.getString(KEY_PLACES, null)?.let(::decodePlaces).orEmpty()
+        _gpsPlace.value = prefs.getString(KEY_GPS_PLACE, null)?.let { decodePlaces(it).firstOrNull() }
+        // A selection whose place is gone from the list falls back to the phone's own position.
+        val selected = prefs.getString(KEY_SELECTED, null) ?: GPS_KEY
+        _selectedKey.value = if (_places.value.any { it.key == selected }) selected else GPS_KEY
+        _windUnit.value = enumOr(prefs.getString(KEY_WIND_UNIT, null), WindUnit.MS)
+        _windDirection.value = enumOr(prefs.getString(KEY_WIND_DIRECTION, null), WindDirectionStyle.ARROW)
+        _pressureUnit.value = enumOr(prefs.getString(KEY_PRESSURE_UNIT, null), PressureUnit.MMHG)
+    }
+
+    /** Added at the end; a place already in the list is not added twice. */
+    fun addPlace(context: Context, place: Place) {
+        if (_places.value.any { it.key == place.key }) return
+        setPlaces(context, _places.value + place)
+    }
+
+    fun removePlace(context: Context, key: String) {
+        setPlaces(context, _places.value.filterNot { it.key == key })
+        if (_selectedKey.value == key) setSelectedKey(context, GPS_KEY)
+    }
+
+    private fun setPlaces(context: Context, places: List<Place>) {
+        _places.value = places
+        prefs(context).edit { putString(KEY_PLACES, encodePlaces(places)) }
+    }
+
+    fun setSelectedKey(context: Context, key: String) {
+        _selectedKey.value = key
+        prefs(context).edit { putString(KEY_SELECTED, key) }
+    }
+
+    fun setGpsPlace(context: Context, place: Place) {
+        _gpsPlace.value = place
+        prefs(context).edit { putString(KEY_GPS_PLACE, encodePlaces(listOf(place))) }
+    }
+
+    fun setWindUnit(context: Context, unit: WindUnit) {
+        _windUnit.value = unit
+        prefs(context).edit { putString(KEY_WIND_UNIT, unit.name) }
+    }
+
+    fun setPressureUnit(context: Context, unit: PressureUnit) {
+        _pressureUnit.value = unit
+        prefs(context).edit { putString(KEY_PRESSURE_UNIT, unit.name) }
+    }
+
+    fun setWindDirection(context: Context, style: WindDirectionStyle) {
+        _windDirection.value = style
+        prefs(context).edit { putString(KEY_WIND_DIRECTION, style.name) }
     }
 
     fun setThemeMode(context: Context, mode: ThemeMode) {

@@ -8,13 +8,13 @@
     android:viewportHeight="108">
     <group android:pivotX="54" android:pivotY="54" android:scaleX="1.4" android:scaleY="1.4">
         <group>
-            <clip-path android:pathData="M0,0 L105.88,0 L0,105.88 Z" />
+            <clip-path android:pathData="M0,0 L108,0 L108,52.50 L0,52.50 Z" />
             <path android:fillColor="#FFFFFFFF" android:pathData="M33,54 a21,21 0 1,0 42,0 a21,21 0 1,0 -42,0 Z" />
-            <path android:strokeColor="#FFFFFFFF" android:strokeWidth="6" android:strokeLineCap="round" android:pathData="M29.05,66.71 L20.14,71.25 M26.34,49.62 L16.47,48.06 M34.20,34.20 L27.13,27.13 M49.62,26.34 L48.06,16.47 M66.71,29.05 L71.25,20.14" />
+            <path android:strokeColor="#FFFFFFFF" android:strokeWidth="6" android:strokeLineCap="round" android:pathData="M27.37,45.35 L17.86,42.26 M37.54,31.35 L31.66,23.26 M54.00,26.00 L54.00,16.00 M70.46,31.35 L76.34,23.26 M80.63,45.35 L90.14,42.26" />
         </group>
         <group>
-            <clip-path android:pathData="M108,2.12 L108,108 L2.12,108 Z" />
-            <path android:strokeColor="#FFFFFFFF" android:strokeWidth="6" android:strokeLineCap="round" android:pathData="M54.00,54.00 L84.91,45.72 M74.28,48.56 L78.51,39.50 M74.28,48.56 L82.48,54.30 M54.00,54.00 L76.63,76.63 M68.85,68.85 L78.81,67.98 M68.85,68.85 L67.98,78.81 M54.00,54.00 L45.72,84.91 M48.56,74.28 L54.30,82.48 M48.56,74.28 L39.50,78.51" />
+            <clip-path android:pathData="M0,55.50 L108,55.50 L108,108 L0,108 Z" />
+            <path android:strokeColor="#FFFFFFFF" android:strokeWidth="6" android:strokeLineCap="round" android:pathData="M54.00,54.00 L81.71,70.00 M72.19,64.50 L81.58,61.08 M72.19,64.50 L73.92,74.35 M54.00,54.00 L54.00,86.00 M54.00,75.00 L61.66,81.43 M54.00,75.00 L46.34,81.43 M54.00,54.00 L26.29,70.00 M35.81,64.50 L34.08,74.35 M35.81,64.50 L26.42,61.08" />
         </group>
     </group>
 </vector>

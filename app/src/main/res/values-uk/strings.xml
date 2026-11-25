@@ -4,8 +4,38 @@
     <string name="tab_hourly">Погодинно</string>
     <string name="tab_settings">Налаштування</string>
     <string name="about">Про програму</string>
-    <string name="forecast_pending">Тут буде прогноз</string>
+    <string name="weather_data_source">Дані про погоду</string>
     <string name="cancel">Скасувати</string>
+    <string name="close">Закрити</string>
+    <string name="remove">Видалити</string>
+    <string name="places">Місця</string>
+    <string name="my_location">Моє місцезнаходження</string>
+    <string name="find_city">Знайти місто</string>
+    <string name="nothing_found">Нічого не знайдено</string>
+    <string name="search_failed">Не вдалося знайти, перевірте підключення</string>
+    <string name="pick_city">Вибрати місто</string>
+    <string name="allow">Дозволити</string>
+    <string name="problem_no_permission">Для прогнозу за місцезнаходженням потрібен доступ до геолокації</string>
+    <string name="problem_no_location">Не вдалося визначити місцезнаходження</string>
+    <string name="problem_network">Не вдалося оновити прогноз</string>
+    <string name="updated_at">Оновлено %1$s</string>
+    <string name="feels_like">Відчувається як %1$s</string>
+    <string name="wind">Вітер</string>
+    <string name="humidity">Вологість</string>
+    <string name="pressure">Тиск</string>
+    <string name="precipitation">Опади</string>
+    <string name="uv_index">УФ</string>
+    <string name="hours_minutes">%1$d год %2$d хв</string>
+    <string name="unit_ms">м/с</string>
+    <string name="unit_kmh">км/год</string>
+    <string name="unit_mm">мм</string>
+    <string name="unit_hpa">гПа</string>
+    <string name="unit_mmhg">мм рт. ст.</string>
+    <string name="setting_wind_unit">Швидкість вітру</string>
+    <string name="setting_wind_direction">Напрямок вітру</string>
+    <string name="setting_pressure_unit">Тиск</string>
+    <string name="wind_style_arrow">Стрілка</string>
+    <string name="wind_style_letters">Літери</string>
     <string name="setting_theme">Тема</string>
     <string name="setting_accent">Колір</string>
     <string name="setting_language">Мова</string>
@@ -14,4 +44,37 @@
     <string name="theme_light">Світла</string>
     <string name="theme_dark">Темна</string>
     <string name="language_system">Системна</string>
+    <string name="wmo_clear">Ясно</string>
+    <string name="wmo_mostly_clear">Переважно ясно</string>
+    <string name="wmo_partly_cloudy">Мінлива хмарність</string>
+    <string name="wmo_overcast">Похмуро</string>
+    <string name="wmo_fog">Туман</string>
+    <string name="wmo_drizzle">Мряка</string>
+    <string name="wmo_freezing_drizzle">Крижана мряка</string>
+    <string name="wmo_light_rain">Невеликий дощ</string>
+    <string name="wmo_rain">Дощ</string>
+    <string name="wmo_heavy_rain">Сильний дощ</string>
+    <string name="wmo_freezing_rain">Крижаний дощ</string>
+    <string name="wmo_light_snow">Невеликий сніг</string>
+    <string name="wmo_snow">Сніг</string>
+    <string name="wmo_heavy_snow">Сильний сніг</string>
+    <string name="wmo_snow_grains">Снігова крупа</string>
+    <string name="wmo_light_showers">Невелика злива</string>
+    <string name="wmo_showers">Злива</string>
+    <string name="wmo_heavy_showers">Сильна злива</string>
+    <string name="wmo_snow_showers">Снігопад</string>
+    <string name="wmo_thunderstorm">Гроза</string>
+    <string name="wmo_thunderstorm_hail">Гроза з градом</string>
+    <string name="wmo_unknown">Немає даних</string>
+    <!-- From north clockwise, eight points: where the wind blows from. -->
+    <string-array name="compass_points">
+        <item>Пн</item>
+        <item>ПнСх</item>
+        <item>Сх</item>
+        <item>ПдСх</item>
+        <item>Пд</item>
+        <item>ПдЗх</item>
+        <item>Зх</item>
+        <item>ПнЗх</item>
+    </string-array>
 </resources>
