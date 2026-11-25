@@ -3,6 +3,7 @@
 > N=new feature, E=error fix, F=fine-tune, R=refactor, I=infrastructure
 
 ## Unreleased
+- I: OUT links the universal APK, as the other projects do.
 - F: The hourly list shows rain and snow in mm instead of their chance, with small pictures over its columns; wind direction is in letters by default.
 - F: The Now screen is laid out anew: wind and pressure beside a smaller sun arc, humidity between temperature and sky, daily humidity in the week, brighter weather icons with one to three drops or flakes by intensity, and the update time in the top bar.
 - N: Temperature in Celsius or Fahrenheit, picked in Settings.
