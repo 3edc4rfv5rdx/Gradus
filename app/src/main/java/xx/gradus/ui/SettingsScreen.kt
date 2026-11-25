@@ -32,6 +32,7 @@ import dev.updater.Updater
 import xx.gradus.AppSettings
 import xx.gradus.R
 import xx.gradus.PressureUnit
+import xx.gradus.TempUnit
 import xx.gradus.ThemeMode
 import xx.gradus.WindDirectionStyle
 import xx.gradus.WindUnit
@@ -40,15 +41,16 @@ import xx.gradus.setLanguageTag
 import xx.gradus.supportedLanguages
 
 /** Which editor is open; only one can be at a time. */
-private enum class Editing { NONE, THEME, ACCENT, LANGUAGE, WIND_UNIT, WIND_DIRECTION, PRESSURE_UNIT }
+private enum class Editing { NONE, THEME, ACCENT, LANGUAGE, TEMP_UNIT, WIND_UNIT, WIND_DIRECTION, PRESSURE_UNIT }
 
-/** Units and how the wind is shown, then theme, accent colour, language, and the start-up update check. */
+/** Temperature, wind and pressure units and how the wind is shown, then theme, accent colour, language, and the start-up update check. */
 @Composable
 fun SettingsScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val activity = LocalActivity.current
     val themeMode by AppSettings.themeMode.collectAsState()
     val accentIndex by AppSettings.accentIndex.collectAsState()
+    val tempUnit by AppSettings.tempUnit.collectAsState()
     val windUnit by AppSettings.windUnit.collectAsState()
     val windDirection by AppSettings.windDirection.collectAsState()
     val pressureUnit by AppSettings.pressureUnit.collectAsState()
@@ -67,6 +69,12 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
+        SettingRow(
+            label = stringResource(R.string.setting_temp_unit),
+            value = tempUnitLabel(tempUnit),
+            onClick = { editing = Editing.TEMP_UNIT },
+        )
+        HorizontalDivider()
         SettingRow(
             label = stringResource(R.string.setting_wind_unit),
             value = windUnitLabel(windUnit),
@@ -171,6 +179,18 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                 editing = Editing.NONE
                 // Persisted, and the activity recreated in the new language.
                 activity?.let { a -> setLanguageTag(a, it.tag) }
+            },
+        )
+
+        Editing.TEMP_UNIT -> ChoiceDialog(
+            title = stringResource(R.string.setting_temp_unit),
+            options = TempUnit.entries,
+            selected = tempUnit,
+            label = { tempUnitLabel(it) },
+            onDismiss = { editing = Editing.NONE },
+            onPick = {
+                AppSettings.setTempUnit(context, it)
+                editing = Editing.NONE
             },
         )
 

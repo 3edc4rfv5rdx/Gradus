@@ -1,6 +1,8 @@
 package xx.gradus.ui
 
+import android.text.format.DateUtils
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,31 +11,37 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import xx.gradus.AppSettings
 import xx.gradus.Day
 import xx.gradus.NO_VALUE
 import xx.gradus.PressureUnit
+import xx.gradus.TempUnit
 import xx.gradus.R
 import xx.gradus.WindDirectionStyle
 import xx.gradus.WindUnit
@@ -68,31 +76,12 @@ fun tempColor(celsius: Double): Color {
     }
 }
 
-/** The bar's colour at a temperature: deep blue in hard frost through to red in the heat. */
-private val BarStops = listOf(
-    -20.0 to Color(0xFF3949AB),
-    -5.0 to Color(0xFF1E88E5),
-    0.0 to Color(0xFF4FC3F7),
-    10.0 to Color(0xFFFFCA28),
-    20.0 to Color(0xFFFB8C00),
-    30.0 to Color(0xFFE53935),
-)
-
-private fun barColor(celsius: Double): Color {
-    if (celsius <= BarStops.first().first) return BarStops.first().second
-    BarStops.zipWithNext().forEach { (a, b) ->
-        if (celsius <= b.first) {
-            return lerp(a.second, b.second, ((celsius - a.first) / (b.first - a.first)).toFloat())
-        }
-    }
-    return BarStops.last().second
-}
-
 // ---------- Text ----------
 
 @Composable
 fun TempText(celsius: Double, style: TextStyle, modifier: Modifier = Modifier, textAlign: TextAlign? = null) {
-    Text(formatTemp(celsius), style = style, color = tempColor(celsius), modifier = modifier, textAlign = textAlign)
+    val unit by AppSettings.tempUnit.collectAsState()
+    Text(formatTemp(celsius, unit), style = style, color = tempColor(celsius), modifier = modifier, textAlign = textAlign)
 }
 
 @Composable
@@ -100,6 +89,14 @@ fun windUnitLabel(unit: WindUnit): String = stringResource(
     when (unit) {
         WindUnit.MS -> R.string.unit_ms
         WindUnit.KMH -> R.string.unit_kmh
+    },
+)
+
+@Composable
+fun tempUnitLabel(unit: TempUnit): String = stringResource(
+    when (unit) {
+        TempUnit.CELSIUS -> R.string.unit_celsius
+        TempUnit.FAHRENHEIT -> R.string.unit_fahrenheit
     },
 )
 
@@ -129,6 +126,14 @@ fun daylightText(seconds: Double): String {
 fun precipitationText(mm: Double): String =
     if (mm.isNaN()) NO_VALUE else "${String.format(Locale.getDefault(), "%.1f", mm)} ${stringResource(R.string.unit_mm)}"
 
+/** When the forecast was fetched: the time if today, the date otherwise. */
+fun fetchedTimeText(fetchedAt: Long): String = DateUtils.formatSameDayTime(
+    fetchedAt,
+    System.currentTimeMillis(),
+    java.text.DateFormat.SHORT,
+    java.text.DateFormat.SHORT,
+).toString()
+
 /** "Wind, m/s": a caption and the unit its value is in. */
 fun captionWithUnit(caption: String, unit: String) = "$caption, $unit"
 
@@ -148,17 +153,55 @@ fun WindView(
     textStyle: TextStyle,
     modifier: Modifier = Modifier,
     arrowSize: Dp = 16.dp,
+    /** Written small after the speed when given; the hourly list names it once, in its captions. */
+    unit: String? = null,
 ) {
     val point = compassPoint(direction)
     val letters = stringArrayResource(R.array.compass_points)
-    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         if (point >= 0) {
-            when (style) {
-                WindDirectionStyle.ARROW -> WindArrow(direction, arrowSize)
-                WindDirectionStyle.LETTERS -> Text(letters[point], style = textStyle)
+            // The direction in a pill of the accent colour, so it stands apart from the speed.
+            val scheme = MaterialTheme.colorScheme
+            Box(
+                Modifier
+                    .background(scheme.primary, RoundedCornerShape(50))
+                    .padding(horizontal = 6.dp, vertical = 2.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                CompositionLocalProvider(LocalContentColor provides scheme.onPrimary) {
+                    when (style) {
+                        WindDirectionStyle.ARROW -> WindArrow(direction, arrowSize)
+                        WindDirectionStyle.LETTERS -> Text(
+                            letters[point],
+                            style = textStyle,
+                            color = scheme.onPrimary,
+                            maxLines = 1,
+                            softWrap = false,
+                        )
+                    }
+                }
             }
         }
-        Text(speedText, style = textStyle)
+        if (unit != null) {
+            FigureWithUnit(speedText, unit, textStyle)
+        } else {
+            Text(speedText, style = textStyle, maxLines = 1, softWrap = false)
+        }
+    }
+}
+
+/** A figure written large with its unit small after it, on one baseline: "765 mmHg". */
+@Composable
+fun FigureWithUnit(figure: String, unit: String, figureStyle: TextStyle, modifier: Modifier = Modifier) {
+    Row(modifier) {
+        Text(figure, Modifier.alignByBaseline(), style = figureStyle, maxLines = 1, softWrap = false)
+        Text(
+            unit,
+            Modifier.alignByBaseline().padding(start = 3.dp),
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 1,
+            softWrap = false,
+        )
     }
 }
 
@@ -249,7 +292,7 @@ fun SunArc(day: Day, now: LocalDateTime, modifier: Modifier = Modifier) {
 }
 
 /** The sun arc's width; the Now screen keeps this much room for it between wind and pressure. */
-val SUN_ARC_WIDTH = 160.dp
+val SUN_ARC_WIDTH = 128.dp
 
 private fun LocalDateTime.minuteOfEpoch(): Long =
     ChronoUnit.MINUTES.between(LocalDateTime.of(1970, 1, 1, 0, 0), this)
@@ -260,7 +303,8 @@ private const val SUN_RAYS = 8
 
 /**
  * One day's low to high on the week's common scale: the bar spans the coldest
- * to the warmest of the whole week, and the day's own range is coloured on it.
+ * to the warmest of the whole week, and the day's own range is coloured on it,
+ * blue below zero and red above, the same two colours as the figures.
  */
 @Composable
 fun TempRangeBar(min: Double, max: Double, weekMin: Double, weekMax: Double, modifier: Modifier = Modifier) {
@@ -273,12 +317,15 @@ fun TempRangeBar(min: Double, max: Double, weekMin: Double, weekMax: Double, mod
         val start = ((min - weekMin) / span).toFloat().coerceIn(0f, 1f) * size.width
         val end = ((max - weekMin) / span).toFloat().coerceIn(0f, 1f) * size.width
         val width = (end - start).coerceAtLeast(size.height)
-        drawRoundRect(
-            brush = Brush.horizontalGradient(listOf(barColor(min), barColor(max)), startX = start, endX = start + width),
-            topLeft = Offset(start.coerceAtMost(size.width - width), 0f),
-            size = Size(width, size.height),
-            cornerRadius = r,
-        )
+        val left = start.coerceAtMost(size.width - width)
+        val zero = (((0.0 - weekMin) / span).toFloat().coerceIn(0f, 1f) * size.width).coerceIn(left, left + width)
+        val segment = Path().apply {
+            addRoundRect(RoundRect(left, 0f, left + width, size.height, r))
+        }
+        clipPath(segment) {
+            drawRect(ColdText, topLeft = Offset(left, 0f), size = Size(zero - left, size.height))
+            drawRect(WarmText, topLeft = Offset(zero, 0f), size = Size(left + width - zero, size.height))
+        }
     }
 }
 
@@ -292,7 +339,7 @@ fun ValueCell(caption: String, modifier: Modifier = Modifier, value: @Composable
         Text(
             caption,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }

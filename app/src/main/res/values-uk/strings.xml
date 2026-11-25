@@ -18,8 +18,8 @@
     <string name="problem_no_permission">Для прогнозу за місцезнаходженням потрібен доступ до геолокації</string>
     <string name="problem_no_location">Не вдалося визначити місцезнаходження</string>
     <string name="problem_network">Не вдалося оновити прогноз</string>
-    <string name="updated_at">Оновлено %1$s</string>
-    <string name="feels_like">Відчувається як %1$s</string>
+    <string name="updated">Оновлено</string>
+    <string name="feels_like">Відчувається як</string>
     <string name="wind">Вітер</string>
     <string name="humidity">Вологість</string>
     <string name="pressure">Тиск</string>
@@ -31,6 +31,7 @@
     <string name="unit_mm">мм</string>
     <string name="unit_hpa">гПа</string>
     <string name="unit_mmhg">мм рт. ст.</string>
+    <string name="setting_temp_unit">Температура</string>
     <string name="setting_wind_unit">Швидкість вітру</string>
     <string name="setting_wind_direction">Напрямок вітру</string>
     <string name="setting_pressure_unit">Тиск</string>

@@ -1,6 +1,5 @@
 package xx.gradus.ui
 
-import android.text.format.DateUtils
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -60,35 +59,19 @@ fun ForecastFrame(
 
 @Composable
 private fun StatusLine(state: WeatherState, onRequestLocation: () -> Unit, onPickPlace: () -> Unit) {
-    val problem = state.problem
-    // Nothing to say while the first fetch is still under way: the spinner says it.
-    if (state.forecast == null && problem == null) return
+    // How fresh the forecast is sits in the top bar; this line is only for what went wrong.
+    val problem = state.problem ?: return
     Column(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        if (state.fetchedAt > 0) {
-            val time = DateUtils.formatSameDayTime(
-                state.fetchedAt,
-                System.currentTimeMillis(),
-                java.text.DateFormat.SHORT,
-                java.text.DateFormat.SHORT,
-            ).toString()
-            Text(
-                stringResource(R.string.updated_at, time),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        if (problem != null) {
-            Text(
-                stringResource(problem.messageRes()),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center,
-            )
-        }
+        Text(
+            stringResource(problem.messageRes()),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.error,
+            textAlign = TextAlign.Center,
+        )
         if (problem == Problem.NO_PERMISSION || (problem == Problem.NO_LOCATION && state.forecast == null)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (problem == Problem.NO_PERMISSION) {

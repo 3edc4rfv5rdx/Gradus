@@ -67,7 +67,7 @@ fun HourlyScreen(viewModel: WeatherViewModel, onRequestLocation: () -> Unit, onP
 @Composable
 private fun ColumnCaptions(windCaption: String) {
     val style = MaterialTheme.typography.labelMedium
-    val color = MaterialTheme.colorScheme.onSurfaceVariant
+    val color = MaterialTheme.colorScheme.onSurface
     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
         Text("", Modifier.width(HOUR_WIDTH + ICON_WIDTH + TEMP_WIDTH))
         Text(windCaption, Modifier.weight(1f), style = style, color = color)
@@ -98,7 +98,7 @@ private fun DayHeader(date: LocalDate, day: Day?) {
             Text(
                 "$sun  ·  ${daylightText(day.daylightSeconds)}  ·  ${stringResource(R.string.uv_index)} $uv",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
@@ -120,7 +120,7 @@ private fun HourRow(hour: Hour, wind: @Composable () -> Unit) {
             percent(hour.humidity)?.let { "$it%" } ?: NO_VALUE,
             Modifier.width(HUMIDITY_WIDTH),
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.End,
         )
         val chance = percent(hour.precipitationChance)
@@ -129,7 +129,7 @@ private fun HourRow(hour: Hour, wind: @Composable () -> Unit) {
             Modifier.width(CHANCE_WIDTH),
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = if (chance != null && chance > 0) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (chance != null && chance > 0) RainText else MaterialTheme.colorScheme.onSurfaceVariant,
+            color = if (chance != null && chance > 0) RainText else MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.End,
         )
     }

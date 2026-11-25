@@ -53,6 +53,7 @@ data class Day(
     val sunset: LocalDateTime?,
     val daylightSeconds: Double,
     val uvIndexMax: Double,
+    val humidityMean: Double,
 )
 
 data class Forecast(val current: Current, val hours: List<Hour>, val days: List<Day>) {
@@ -124,6 +125,7 @@ fun parseForecast(text: String): Forecast {
             sunset = d.timeAt("sunset", i),
             daylightSeconds = d.numAt("daylight_duration", i),
             uvIndexMax = d.numAt("uv_index_max", i),
+            humidityMean = d.numAt("relative_humidity_2m_mean", i),
         )
     }
 

@@ -25,7 +25,7 @@ object OpenMeteo {
     private const val HOURLY_FIELDS = "temperature_2m,relative_humidity_2m,precipitation_probability," +
         "weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,is_day"
     private const val DAILY_FIELDS = "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum," +
-        "sunrise,sunset,daylight_duration,uv_index_max"
+        "sunrise,sunset,daylight_duration,uv_index_max,relative_humidity_2m_mean"
 
     /** Wind always comes in m/s; the unit the user picked is applied when it is shown. */
     fun forecastUrl(latitude: Double, longitude: Double): String =

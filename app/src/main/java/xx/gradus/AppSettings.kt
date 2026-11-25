@@ -35,6 +35,7 @@ object AppSettings {
     private const val KEY_WIND_UNIT = "wind_unit"
     private const val KEY_WIND_DIRECTION = "wind_direction"
     private const val KEY_PRESSURE_UNIT = "pressure_unit"
+    private const val KEY_TEMP_UNIT = "temp_unit"
 
     private val _themeMode = MutableStateFlow(ThemeMode.SYSTEM)
     val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
@@ -60,6 +61,9 @@ object AppSettings {
     private val _windDirection = MutableStateFlow(WindDirectionStyle.ARROW)
     val windDirection: StateFlow<WindDirectionStyle> = _windDirection.asStateFlow()
 
+    private val _tempUnit = MutableStateFlow(TempUnit.CELSIUS)
+    val tempUnit: StateFlow<TempUnit> = _tempUnit.asStateFlow()
+
     private val _pressureUnit = MutableStateFlow(PressureUnit.MMHG)
     val pressureUnit: StateFlow<PressureUnit> = _pressureUnit.asStateFlow()
 
@@ -75,6 +79,7 @@ object AppSettings {
         _windUnit.value = enumOr(prefs.getString(KEY_WIND_UNIT, null), WindUnit.MS)
         _windDirection.value = enumOr(prefs.getString(KEY_WIND_DIRECTION, null), WindDirectionStyle.ARROW)
         _pressureUnit.value = enumOr(prefs.getString(KEY_PRESSURE_UNIT, null), PressureUnit.MMHG)
+        _tempUnit.value = enumOr(prefs.getString(KEY_TEMP_UNIT, null), TempUnit.CELSIUS)
     }
 
     /** Added at the end; a place already in the list is not added twice. */
@@ -106,6 +111,11 @@ object AppSettings {
     fun setWindUnit(context: Context, unit: WindUnit) {
         _windUnit.value = unit
         prefs(context).edit { putString(KEY_WIND_UNIT, unit.name) }
+    }
+
+    fun setTempUnit(context: Context, unit: TempUnit) {
+        _tempUnit.value = unit
+        prefs(context).edit { putString(KEY_TEMP_UNIT, unit.name) }
     }
 
     fun setPressureUnit(context: Context, unit: PressureUnit) {

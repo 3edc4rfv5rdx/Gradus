@@ -19,8 +19,8 @@
     <string name="problem_no_permission">The forecast for where you are needs access to location</string>
     <string name="problem_no_location">Could not find where the phone is</string>
     <string name="problem_network">Could not update the forecast</string>
-    <string name="updated_at">Updated %1$s</string>
-    <string name="feels_like">Feels like %1$s</string>
+    <string name="updated">Updated</string>
+    <string name="feels_like">Feels like</string>
     <string name="wind">Wind</string>
     <string name="humidity">Humidity</string>
     <string name="pressure">Pressure</string>
@@ -32,6 +32,9 @@
     <string name="unit_mm">mm</string>
     <string name="unit_hpa">hPa</string>
     <string name="unit_mmhg">mmHg</string>
+    <string name="setting_temp_unit">Temperature</string>
+    <string name="unit_celsius" translatable="false">°C</string>
+    <string name="unit_fahrenheit" translatable="false">°F</string>
     <string name="setting_wind_unit">Wind speed</string>
     <string name="setting_wind_direction">Wind direction</string>
     <string name="setting_pressure_unit">Pressure</string>

@@ -10,7 +10,17 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,15 +34,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,8 +53,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toDrawable
 import dev.about.About
 import dev.about.AboutConfig
@@ -61,6 +72,7 @@ import xx.gradus.ui.SettingsScreen
 import xx.gradus.ui.WindowDark
 import xx.gradus.ui.WindowLight
 import xx.gradus.ui.accentAt
+import xx.gradus.ui.fetchedTimeText
 import xx.gradus.ui.isDarkTheme
 
 // One description of this app's release, for the silent check at start-up and
@@ -169,24 +181,12 @@ private fun MainScreen(weather: WeatherViewModel, onAbout: () -> Unit) {
             AppTopBar(
                 tab = current,
                 place = state.place,
+                fetchedAt = state.fetchedAt,
                 onPickPlace = pickPlace,
                 onAbout = onAbout,
             )
         },
-        bottomBar = {
-            // On a phone with on-screen back/home buttons the bar sits under them unless it is
-            // given that inset; with gesture navigation the same inset is a thin strip.
-            NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
-                Tab.entries.forEach { tab ->
-                    NavigationBarItem(
-                        selected = tab == current,
-                        onClick = { current = tab },
-                        icon = { TabIcon(tab) },
-                        label = { Text(stringResource(tab.labelRes), style = NavLabelStyle) },
-                    )
-                }
-            }
-        },
+        bottomBar = { TabBar(current, onPick = { current = it }) },
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             when (current) {
@@ -200,13 +200,57 @@ private fun MainScreen(weather: WeatherViewModel, onAbout: () -> Unit) {
     if (pickingPlace) PlacesDialog(weather, onDismiss = { pickingPlace = false })
 }
 
+/** Material's bar is 80dp tall and cannot be made lower; this one is [TAB_BAR_HEIGHT]. */
+private val TAB_BAR_HEIGHT = 56.dp
+
+@Composable
+private fun TabBar(current: Tab, onPick: (Tab) -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    Surface(color = scheme.surfaceContainer) {
+        // The inset first, then the height: on a phone with on-screen back/home buttons
+        // the bar stands on top of them instead of under; with gestures the inset is a thin strip.
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.navigationBars)
+                .height(TAB_BAR_HEIGHT),
+        ) {
+            Tab.entries.forEach { tab ->
+                val selected = tab == current
+                Column(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .selectable(selected = selected, role = Role.Tab, onClick = { onPick(tab) }),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    val content = if (selected) scheme.onPrimary else scheme.onSurface
+                    Box(
+                        Modifier
+                            .background(
+                                // The picked tab wears the accent chosen in Settings.
+                                if (selected) scheme.primary else Color.Transparent,
+                                RoundedCornerShape(50),
+                            )
+                            .padding(horizontal = 16.dp, vertical = 2.dp),
+                    ) {
+                        CompositionLocalProvider(LocalContentColor provides content) { TabIcon(tab) }
+                    }
+                    Text(stringResource(tab.labelRes), style = NavLabelStyle, color = scheme.onSurface)
+                }
+            }
+        }
+    }
+}
+
 /**
  * On the forecast tabs, the place the forecast is for, tapped to pick another;
  * on Settings, the tab's name and the (i) that opens About, as in Steps.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AppTopBar(tab: Tab, place: Place?, onPickPlace: () -> Unit, onAbout: () -> Unit) {
+private fun AppTopBar(tab: Tab, place: Place?, fetchedAt: Long, onPickPlace: () -> Unit, onAbout: () -> Unit) {
     TopAppBar(
         title = {
             if (tab == Tab.SETTINGS) {
@@ -224,6 +268,12 @@ private fun AppTopBar(tab: Tab, place: Place?, onPickPlace: () -> Unit, onAbout:
             if (tab == Tab.SETTINGS) {
                 IconButton(onClick = onAbout) {
                     Icon(Icons.Outlined.Info, contentDescription = stringResource(R.string.about))
+                }
+            } else if (fetchedAt > 0) {
+                // How fresh the forecast is, in two short lines at the right.
+                Column(Modifier.padding(end = 16.dp), horizontalAlignment = Alignment.End) {
+                    Text(stringResource(R.string.updated), style = MaterialTheme.typography.labelMedium)
+                    Text(fetchedTimeText(fetchedAt), style = MaterialTheme.typography.titleSmall)
                 }
             }
         },

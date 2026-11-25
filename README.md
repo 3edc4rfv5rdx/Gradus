@@ -15,7 +15,7 @@ account or key.
   sunrise and sunset, and the seven days ahead with their lows and highs.
 - **Hourly**: the next 48 hours under a heading per day: temperature, wind,
   humidity and the chance of rain or snow.
-- **Settings**: wind in m/s or km/h, its direction as an arrow or letters,
+- **Settings**: temperature in °C or °F, wind in m/s or km/h, its direction as an arrow or letters,
   pressure in mmHg or hPa, theme, colour, language, and the update check at launch.
 
 The forecast is for where the phone is or for a city found by name; the cities

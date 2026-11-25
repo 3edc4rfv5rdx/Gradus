@@ -40,7 +40,8 @@ class WeatherTest {
             "sunrise": ["2026-11-24T07:10", null],
             "sunset": ["2026-11-24T16:16", "2026-11-25T16:15"],
             "daylight_duration": [32700.0, 32580.0],
-            "uv_index_max": [1.2, null]
+            "uv_index_max": [1.2, null],
+            "relative_humidity_2m_mean": [71, null]
           }
         }
     """.trimIndent()
@@ -65,6 +66,8 @@ class WeatherTest {
         assertEquals(NO_CODE, last.code)
         assertNull(f.days[1].sunrise)
         assertTrue(f.days[1].uvIndexMax.isNaN())
+        assertEquals(71.0, f.days[0].humidityMean, 0.0)
+        assertTrue(f.days[1].humidityMean.isNaN())
         assertEquals(LocalDateTime.of(2026, 11, 25, 16, 15), f.days[1].sunset)
     }
 

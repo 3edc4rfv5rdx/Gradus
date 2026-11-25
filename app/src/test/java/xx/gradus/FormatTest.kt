@@ -10,15 +10,22 @@ class FormatTest {
 
     @Test
     fun temperatureCarriesItsSign() {
-        assertEquals("+3°", formatTemp(2.6))
-        assertEquals("−2°", formatTemp(-2.4))
-        assertEquals(NO_VALUE, formatTemp(Double.NaN))
+        assertEquals("+3°", formatTemp(2.6, TempUnit.CELSIUS))
+        assertEquals("−2°", formatTemp(-2.4, TempUnit.CELSIUS))
+        assertEquals(NO_VALUE, formatTemp(Double.NaN, TempUnit.CELSIUS))
     }
 
     @Test
     fun aSmallFrostRoundsToZeroWithoutAMinus() {
-        assertEquals("0°", formatTemp(-0.4))
-        assertEquals("0°", formatTemp(0.4))
+        assertEquals("0°", formatTemp(-0.4, TempUnit.CELSIUS))
+        assertEquals("0°", formatTemp(0.4, TempUnit.CELSIUS))
+    }
+
+    @Test
+    fun fahrenheitWithoutAPlus() {
+        assertEquals("37°", formatTemp(2.6, TempUnit.FAHRENHEIT))
+        assertEquals("32°", formatTemp(0.0, TempUnit.FAHRENHEIT))
+        assertEquals("−4°", formatTemp(-20.0, TempUnit.FAHRENHEIT))
     }
 
     @Test

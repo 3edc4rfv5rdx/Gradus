@@ -18,16 +18,30 @@ fun isStale(fetchedAt: Long, now: Long): Boolean =
 /** The dash every missing value is written as. */
 const val NO_VALUE = "—"
 
-/** Whole degrees; null for a value the service did not send. */
+/**
+ * Whole degrees Celsius; null for a value the service did not send. Celsius
+ * whatever unit is shown: the colour says above or below freezing.
+ */
 fun roundedTemp(celsius: Double): Int? = if (celsius.isNaN()) null else celsius.roundToInt()
 
-/** "+3°", "−2°", "0°": the sign spelled out, a true minus rather than a hyphen. */
-fun formatTemp(celsius: Double): String {
-    val t = roundedTemp(celsius) ?: return NO_VALUE
+/** The data always comes in Celsius; Fahrenheit is worked out for display. */
+enum class TempUnit { CELSIUS, FAHRENHEIT }
+
+/**
+ * "+3°", "−2°", "0°" in Celsius, the sign spelled out and a true minus rather
+ * than a hyphen; in Fahrenheit, where zero means nothing in particular, a plus
+ * would only be noise and is left off: "37°", "−4°".
+ */
+fun formatTemp(celsius: Double, unit: TempUnit): String {
+    if (celsius.isNaN()) return NO_VALUE
+    val t = when (unit) {
+        TempUnit.CELSIUS -> celsius
+        TempUnit.FAHRENHEIT -> celsius * 9 / 5 + 32
+    }.roundToInt()
     return when {
-        t > 0 -> "+$t°"
         t < 0 -> "−${-t}°"
-        else -> "0°"
+        t > 0 && unit == TempUnit.CELSIUS -> "+$t°"
+        else -> "$t°"
     }
 }
 
