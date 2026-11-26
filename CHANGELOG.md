@@ -3,6 +3,7 @@
 > N=new feature, E=error fix, F=fine-tune, R=refactor, I=infrastructure
 
 ## Unreleased
+## v0.2.25 (2026-11-26)
 - N: The moon on the Now screen, worked out on the phone: a ring on the sun arc while it is up, its phase, moonrise and moonset under the arc; can be turned off in Settings.
 - F: The Now screen shows today's date above the humidity.
 - F: Weekdays in the week list are two letters in English too.
