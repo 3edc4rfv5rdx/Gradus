@@ -3,6 +3,10 @@ package xx.gradus.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -58,8 +62,9 @@ private fun CurrentBlock(forecast: Forecast) {
     // Bottom-aligned, with an empty line under humidity the height of the feels-like
     // figure: so "feels like", "humidity" and the sky's first line stand on one line.
     val figure = MaterialTheme.typography.titleMedium
+    // Intrinsic height, so the middle column can stretch to the block's full height.
     Row(
-        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp),
+        Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(start = 16.dp, end = 16.dp, top = 8.dp),
         verticalAlignment = Alignment.Bottom,
     ) {
         Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -72,8 +77,14 @@ private fun CurrentBlock(forecast: Forecast) {
             )
             Text(formatTemp(now.feelsLike, tempUnit), style = figure)
         }
-        // Humidity sits between the two, small: a figure over its caption.
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        // Humidity sits between the two, small: a figure over its caption; today's
+        // date at the place stands at the top, level with the big temperature.
+        Column(
+            Modifier.fillMaxHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(now.time.format(TodayFormat), style = MaterialTheme.typography.bodyMedium)
+            Spacer(Modifier.weight(1f))
             ValueCell(stringResource(R.string.humidity)) {
                 Text(percent(now.humidity)?.let { "$it%" } ?: NO_VALUE, style = figure)
             }
@@ -139,6 +150,9 @@ private fun CurrentDetails(forecast: Forecast) {
         }
     }
 }
+
+/** Short, so it fits the narrow middle column: "26 Nov", "26 нояб.". */
+private val TodayFormat: DateTimeFormatter get() = DateTimeFormatter.ofPattern("d MMM", Locale.getDefault())
 
 private val WeekdayFormat: DateTimeFormatter get() = DateTimeFormatter.ofPattern("EEE", Locale.getDefault())
 

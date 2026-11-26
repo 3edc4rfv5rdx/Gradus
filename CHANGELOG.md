@@ -3,6 +3,7 @@
 > N=new feature, E=error fix, F=fine-tune, R=refactor, I=infrastructure
 
 ## Unreleased
+- F: The Now screen shows today's date above the humidity.
 - F: Weekdays in the week list are two letters in English too.
 - F: Ukrainian wind directions are shorter: П, Пд, С, З.
 - F: Rain and snow amounts are black on their blue pill, easier to read.
