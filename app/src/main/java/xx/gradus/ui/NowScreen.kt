@@ -142,6 +142,9 @@ private fun CurrentDetails(forecast: Forecast) {
 
 private val WeekdayFormat: DateTimeFormatter get() = DateTimeFormatter.ofPattern("EEE", Locale.getDefault())
 
+/** Two letters in every language: "Mo" as narrow as "пн", so the column holds them all. */
+private const val WEEKDAY_LETTERS = 2
+
 @Composable
 private fun DayRow(day: Day, weekMin: Double, weekMax: Double) {
     Row(
@@ -151,7 +154,7 @@ private fun DayRow(day: Day, weekMin: Double, weekMax: Double) {
     ) {
         Column(Modifier.width(44.dp)) {
             Text(
-                day.date.format(WeekdayFormat).replaceFirstChar { it.titlecase(Locale.getDefault()) },
+                day.date.format(WeekdayFormat).take(WEEKDAY_LETTERS).replaceFirstChar { it.titlecase(Locale.getDefault()) },
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
             )

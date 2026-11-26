@@ -3,6 +3,7 @@
 > N=new feature, E=error fix, F=fine-tune, R=refactor, I=infrastructure
 
 ## Unreleased
+- F: Weekdays in the week list are two letters in English too.
 - F: Ukrainian wind directions are shorter: П, Пд, С, З.
 - F: Rain and snow amounts are black on their blue pill, easier to read.
 - F: Saved cities are removed with a cross instead of a bin.
