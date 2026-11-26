@@ -42,6 +42,7 @@
     <string name="setting_theme">Theme</string>
     <string name="setting_accent">Color</string>
     <string name="setting_language">Language</string>
+    <string name="setting_moon">Show the moon</string>
     <string name="setting_update_check">Check for updates at launch</string>
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>

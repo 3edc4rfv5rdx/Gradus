@@ -43,7 +43,7 @@ import xx.gradus.supportedLanguages
 /** Which editor is open; only one can be at a time. */
 private enum class Editing { NONE, THEME, ACCENT, LANGUAGE, TEMP_UNIT, WIND_UNIT, WIND_DIRECTION, PRESSURE_UNIT }
 
-/** Temperature, wind and pressure units and how the wind is shown, then theme, accent colour, language, and the start-up update check. */
+/** Temperature, wind and pressure units and how the wind is shown, then theme, accent colour, language, the moon, and the start-up update check. */
 @Composable
 fun SettingsScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
@@ -54,6 +54,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
     val windUnit by AppSettings.windUnit.collectAsState()
     val windDirection by AppSettings.windDirection.collectAsState()
     val pressureUnit by AppSettings.pressureUnit.collectAsState()
+    val showMoon by AppSettings.showMoon.collectAsState()
 
     val systemLabel = stringResource(R.string.language_system)
     val languages = remember(context, systemLabel) { supportedLanguages(context, systemLabel) }
@@ -120,23 +121,11 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             onClick = { editing = Editing.LANGUAGE },
         )
         HorizontalDivider()
-        // The whole row is not clickable: the switch is the control.
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(R.string.setting_update_check),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f),
-            )
-            Switch(
-                checked = updateCheck,
-                onCheckedChange = {
-                    updateCheck = it
-                    Updater.setEnabled(context, it)
-                },
-            )
+        SwitchRow(stringResource(R.string.setting_moon), showMoon) { AppSettings.setShowMoon(context, it) }
+        HorizontalDivider()
+        SwitchRow(stringResource(R.string.setting_update_check), updateCheck) {
+            updateCheck = it
+            Updater.setEnabled(context, it)
         }
     }
 
@@ -254,4 +243,16 @@ private fun ThemeMode.labelRes(): Int = when (this) {
 private fun WindDirectionStyle.labelRes(): Int = when (this) {
     WindDirectionStyle.ARROW -> R.string.wind_style_arrow
     WindDirectionStyle.LETTERS -> R.string.wind_style_letters
+}
+
+/** A label and its switch; the whole row is not clickable, the switch is the control. */
+@Composable
+private fun SwitchRow(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(text = label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
+    }
 }

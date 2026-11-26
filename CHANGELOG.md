@@ -3,6 +3,7 @@
 > N=new feature, E=error fix, F=fine-tune, R=refactor, I=infrastructure
 
 ## Unreleased
+- N: The moon on the Now screen, worked out on the phone: a ring on the sun arc while it is up, its phase, moonrise and moonset under the arc; can be turned off in Settings.
 - F: The Now screen shows today's date above the humidity.
 - F: Weekdays in the week list are two letters in English too.
 - F: Ukrainian wind directions are shorter: П, Пд, С, З.

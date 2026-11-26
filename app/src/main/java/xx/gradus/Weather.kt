@@ -4,6 +4,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 /*
@@ -57,7 +58,16 @@ data class Day(
     val humidityMean: Double,
 )
 
-data class Forecast(val current: Current, val hours: List<Hour>, val days: List<Day>) {
+data class Forecast(
+    val current: Current,
+    val hours: List<Hour>,
+    val days: List<Day>,
+    /** The forecast's grid point, NaN if the service left it out; the moon is worked out for it. */
+    val latitude: Double,
+    val longitude: Double,
+    /** The place's offset from UTC at the time of the request; null if the service left it out. */
+    val utcOffset: ZoneOffset?,
+) {
 
     /** The next [count] hours, starting with the one the current reading falls in. */
     fun hoursAhead(count: Int = HOURS_AHEAD): List<Hour> {
@@ -130,7 +140,12 @@ fun parseForecast(text: String): Forecast {
         )
     }
 
-    return Forecast(current, hours, days)
+    val offset = if (root.has("utc_offset_seconds")) {
+        runCatching { ZoneOffset.ofTotalSeconds(root.getInt("utc_offset_seconds")) }.getOrNull()
+    } else {
+        null
+    }
+    return Forecast(current, hours, days, root.num("latitude"), root.num("longitude"), offset)
 }
 
 // org.json's optDouble already turns a null or a missing key into NaN.

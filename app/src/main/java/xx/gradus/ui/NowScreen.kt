@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
@@ -34,6 +35,7 @@ import xx.gradus.NO_VALUE
 import xx.gradus.R
 import xx.gradus.WeatherViewModel
 import xx.gradus.describeCode
+import xx.gradus.moonNow
 import xx.gradus.formatTemp
 import xx.gradus.percent
 import xx.gradus.pressureIn
@@ -120,7 +122,11 @@ private fun Modifier.pullUp(by: Dp): Modifier = layout { measurable, constraints
     layout(placeable.width, placeable.height - shift) { placeable.place(0, -shift) }
 }
 
-/** Wind on the left, today's sun arc in the middle, pressure on the right. */
+/**
+ * Wind on the left, today's sun arc in the middle, pressure on the right; the
+ * moon, when Settings shows it, on the arc and in a line of its own under it,
+ * so wind and pressure stay level with the sunrise and sunset times.
+ */
 @Composable
 private fun CurrentDetails(forecast: Forecast) {
     val now = forecast.current
@@ -128,26 +134,31 @@ private fun CurrentDetails(forecast: Forecast) {
     val windUnit by AppSettings.windUnit.collectAsState()
     val windStyle by AppSettings.windDirection.collectAsState()
     val pressureUnit by AppSettings.pressureUnit.collectAsState()
+    val showMoon by AppSettings.showMoon.collectAsState()
+    val moon = remember(forecast, showMoon) { if (showMoon) moonNow(forecast) else null }
     val value = MaterialTheme.typography.headlineSmall
-    Row(
+    Column(
         Modifier.pullUp(DETAILS_OVERLAP).fillMaxWidth().padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
-        verticalAlignment = Alignment.Bottom,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Bare figures and bare captions, one short line each, level with the sunrise
-        // and sunset times under the arc; the units are the ones picked in Settings.
-        ValueCell(stringResource(R.string.wind), Modifier.weight(1f)) {
-            WindView(now.windDirection, windSpeedText(windUnit, now.windSpeed, now.windGusts), windStyle, value)
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+            // Bare figures and bare captions, one short line each, level with the sunrise
+            // and sunset times under the arc; the units are the ones picked in Settings.
+            ValueCell(stringResource(R.string.wind), Modifier.weight(1f)) {
+                WindView(now.windDirection, windSpeedText(windUnit, now.windSpeed, now.windGusts), windStyle, value)
+            }
+            // A day without a sunrise and a sunset still keeps the middle, so the sides stay put.
+            Box(Modifier.width(SUN_ARC_WIDTH), contentAlignment = Alignment.Center) {
+                if (today != null) SunArc(today, now.time, moonProgress = moon?.progress)
+            }
+            ValueCell(stringResource(R.string.pressure), Modifier.weight(1f)) {
+                Text(
+                    pressureIn(pressureUnit, now.pressureSeaLevel, now.pressureSurface)?.toString() ?: NO_VALUE,
+                    style = value,
+                )
+            }
         }
-        // A day without a sunrise and a sunset still keeps the middle, so the sides stay put.
-        Box(Modifier.width(SUN_ARC_WIDTH), contentAlignment = Alignment.Center) {
-            if (today != null) SunArc(today, now.time)
-        }
-        ValueCell(stringResource(R.string.pressure), Modifier.weight(1f)) {
-            Text(
-                pressureIn(pressureUnit, now.pressureSeaLevel, now.pressureSurface)?.toString() ?: NO_VALUE,
-                style = value,
-            )
-        }
+        if (moon != null) MoonLine(moon, southern = forecast.latitude < 0, Modifier.padding(top = 4.dp))
     }
 }
 

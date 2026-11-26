@@ -17,6 +17,8 @@ comes from [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0).
   - temperature, how it feels, humidity, and the sky in a picture and in words;
   - wind and pressure beside an arc that shows today's sunrise, sunset and day
     length, with the sun where it stands now;
+  - the moon, worked out on the phone: a ring on the same arc while it is up, and
+    its phase, moonrise and moonset under the arc (can be turned off in Settings);
   - the seven days ahead: low and high on one common scale (blue below zero, red
     above), average humidity, and rain or snow in mm when there is any.
 - **Hourly**: the next 48 hours, under a heading for each day with its sunrise,

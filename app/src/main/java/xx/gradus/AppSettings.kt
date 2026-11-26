@@ -36,6 +36,7 @@ object AppSettings {
     private const val KEY_WIND_DIRECTION = "wind_direction"
     private const val KEY_PRESSURE_UNIT = "pressure_unit"
     private const val KEY_TEMP_UNIT = "temp_unit"
+    private const val KEY_SHOW_MOON = "show_moon"
 
     private val _themeMode = MutableStateFlow(ThemeMode.SYSTEM)
     val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
@@ -67,6 +68,10 @@ object AppSettings {
     private val _pressureUnit = MutableStateFlow(PressureUnit.MMHG)
     val pressureUnit: StateFlow<PressureUnit> = _pressureUnit.asStateFlow()
 
+    /** The moon on the sun arc and its phase and times under it, on the Now screen. */
+    private val _showMoon = MutableStateFlow(true)
+    val showMoon: StateFlow<Boolean> = _showMoon.asStateFlow()
+
     fun load(context: Context) {
         val prefs = prefs(context)
         _themeMode.value = enumOr(prefs.getString(KEY_THEME, null), ThemeMode.SYSTEM)
@@ -80,6 +85,7 @@ object AppSettings {
         _windDirection.value = enumOr(prefs.getString(KEY_WIND_DIRECTION, null), WindDirectionStyle.LETTERS)
         _pressureUnit.value = enumOr(prefs.getString(KEY_PRESSURE_UNIT, null), PressureUnit.MMHG)
         _tempUnit.value = enumOr(prefs.getString(KEY_TEMP_UNIT, null), TempUnit.CELSIUS)
+        _showMoon.value = prefs.getBoolean(KEY_SHOW_MOON, true)
     }
 
     /** Added at the end; a place already in the list is not added twice. */
@@ -121,6 +127,11 @@ object AppSettings {
     fun setPressureUnit(context: Context, unit: PressureUnit) {
         _pressureUnit.value = unit
         prefs(context).edit { putString(KEY_PRESSURE_UNIT, unit.name) }
+    }
+
+    fun setShowMoon(context: Context, show: Boolean) {
+        _showMoon.value = show
+        prefs(context).edit { putBoolean(KEY_SHOW_MOON, show) }
     }
 
     fun setWindDirection(context: Context, style: WindDirectionStyle) {

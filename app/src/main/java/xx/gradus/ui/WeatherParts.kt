@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import xx.gradus.AppSettings
 import xx.gradus.Day
+import xx.gradus.MoonNow
 import xx.gradus.NO_VALUE
 import xx.gradus.PressureUnit
 import xx.gradus.TempUnit
@@ -204,10 +205,12 @@ fun WindArrow(fromDegrees: Double, size: Dp) {
 
 /**
  * Sunrise and sunset under an arc, the day's length inside it, and the sun on
- * the arc where it stands now. [now] is the place's local time.
+ * the arc where it stands now. [now] is the place's local time. The moon, while
+ * it is up, rides the same arc as a hollow ring, [moonProgress] along its own
+ * way from rise to set.
  */
 @Composable
-fun SunArc(day: Day, now: LocalDateTime, modifier: Modifier = Modifier) {
+fun SunArc(day: Day, now: LocalDateTime, modifier: Modifier = Modifier, moonProgress: Float? = null) {
     val sunrise = day.sunrise
     val sunset = day.sunset
     val progress = sunProgress(
@@ -216,6 +219,8 @@ fun SunArc(day: Day, now: LocalDateTime, modifier: Modifier = Modifier) {
         sunset?.minuteOfEpoch(),
     )
     val track = MaterialTheme.colorScheme.outlineVariant
+    val moonColor = MaterialTheme.colorScheme.onSurface
+    val moonFill = MaterialTheme.colorScheme.surface
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.width(SUN_ARC_WIDTH).height(SUN_ARC_WIDTH / 2), contentAlignment = Alignment.BottomCenter) {
             Canvas(Modifier.matchParentSize()) {
@@ -232,6 +237,10 @@ fun SunArc(day: Day, now: LocalDateTime, modifier: Modifier = Modifier) {
                     size = Size(radius * 2, radius * 2),
                     style = Stroke(stroke, cap = StrokeCap.Round),
                 )
+                fun onArc(p: Float): Offset {
+                    val a = Math.toRadians(180.0 + 180.0 * p)
+                    return Offset(center.x + radius * cos(a).toFloat(), center.y + radius * sin(a).toFloat())
+                }
                 if (progress != null) {
                     drawArc(
                         color = SunArcColor,
@@ -242,8 +251,7 @@ fun SunArc(day: Day, now: LocalDateTime, modifier: Modifier = Modifier) {
                         size = Size(radius * 2, radius * 2),
                         style = Stroke(stroke, cap = StrokeCap.Round),
                     )
-                    val a = Math.toRadians(180.0 + 180.0 * progress)
-                    val sun = Offset(center.x + radius * cos(a).toFloat(), center.y + radius * sin(a).toFloat())
+                    val sun = onArc(progress)
                     drawCircle(SunArcColor, radius = 6.dp.toPx(), center = sun)
                     repeat(SUN_RAYS) { i ->
                         val ray = Math.toRadians(i * 360.0 / SUN_RAYS)
@@ -258,6 +266,12 @@ fun SunArc(day: Day, now: LocalDateTime, modifier: Modifier = Modifier) {
                         )
                     }
                 }
+                // A ring with the page's colour inside, so the arc does not run through it.
+                if (moonProgress != null) {
+                    val moon = onArc(moonProgress)
+                    drawCircle(moonFill, radius = 5.dp.toPx(), center = moon)
+                    drawCircle(moonColor, radius = 5.dp.toPx(), center = moon, style = Stroke(1.5f.dp.toPx()))
+                }
             }
             Text(daylightText(day.daylightSeconds), style = MaterialTheme.typography.bodyMedium)
         }
@@ -267,6 +281,60 @@ fun SunArc(day: Day, now: LocalDateTime, modifier: Modifier = Modifier) {
         }
     }
 }
+
+/**
+ * Moonrise, the moon's phase and moonset, a line under the sun arc and as wide.
+ * Times are the place's local ones; a dash for a day the moon does not rise or set.
+ */
+@Composable
+fun MoonLine(moon: MoonNow, southern: Boolean, modifier: Modifier = Modifier) {
+    val style = MaterialTheme.typography.bodyMedium
+    Row(
+        modifier.width(SUN_ARC_WIDTH),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(moon.rise?.format(HourFormat) ?: NO_VALUE, style = style)
+        MoonPhase(moon.elongation, southern, MaterialTheme.colorScheme.onSurface, 18.dp)
+        Text(moon.set?.format(HourFormat) ?: NO_VALUE, style = style)
+    }
+}
+
+/**
+ * The moon's disc outlined, its lit part filled: the limb on the sun's side
+ * and the terminator, an ellipse whose half-width follows the phase. Lit on
+ * the right while waxing as the northern hemisphere sees it, mirrored south
+ * of the equator.
+ */
+@Composable
+fun MoonPhase(elongation: Double, southern: Boolean, color: Color, size: Dp) {
+    Canvas(Modifier.size(size)) {
+        val stroke = 1.5f.dp.toPx()
+        val r = this.size.minDimension / 2 - stroke / 2
+        val c = this.center
+        drawCircle(color, r, c, style = Stroke(stroke))
+        val waxing = elongation < 180
+        val side = if (waxing != southern) 1f else -1f
+        // 1 at new moon, where the terminator lies on the lit limb; -1 at full, on the far one.
+        val k = cos(Math.toRadians(elongation)).toFloat()
+        val lit = Path().apply {
+            for (i in 0..MOON_STEPS) {
+                val t = Math.toRadians(-90.0 + 180.0 * i / MOON_STEPS)
+                val x = c.x + side * r * cos(t).toFloat()
+                val y = c.y + r * sin(t).toFloat()
+                if (i == 0) moveTo(x, y) else lineTo(x, y)
+            }
+            for (i in MOON_STEPS downTo 0) {
+                val t = Math.toRadians(-90.0 + 180.0 * i / MOON_STEPS)
+                lineTo(c.x + side * r * k * cos(t).toFloat(), c.y + r * sin(t).toFloat())
+            }
+            close()
+        }
+        drawPath(lit, color)
+    }
+}
+
+private const val MOON_STEPS = 24
 
 /** The sun arc's width; the Now screen keeps this much room for it between wind and pressure. */
 val SUN_ARC_WIDTH = 128.dp
