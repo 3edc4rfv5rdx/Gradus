@@ -311,14 +311,14 @@ fun TempRangeBar(min: Double, max: Double, weekMin: Double, weekMax: Double, mod
 /** Rain or snow under this much is not worth a mention. */
 private const val NOTABLE_PRECIPITATION_MM = 0.1
 
-/** "1,3 mm" white on blue; nothing at all when it stays dry. */
+/** "1,3 mm" black on light blue, which reads in either theme; nothing at all when it stays dry. */
 @Composable
 fun PrecipitationPill(mm: Double) {
     if (mm.isNaN() || mm < NOTABLE_PRECIPITATION_MM) return
     Text(
         precipitationText(mm),
         style = MaterialTheme.typography.bodyMedium,
-        color = Color.White,
+        color = Color.Black,
         maxLines = 1,
         softWrap = false,
         modifier = Modifier
