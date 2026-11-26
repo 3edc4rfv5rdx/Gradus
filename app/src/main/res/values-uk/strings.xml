@@ -68,13 +68,13 @@
     <string name="wmo_unknown">Немає даних</string>
     <!-- From north clockwise, eight points: where the wind blows from. -->
     <string-array name="compass_points">
-        <item>Пн</item>
-        <item>ПнСх</item>
-        <item>Сх</item>
-        <item>ПдСх</item>
+        <item>П</item>
+        <item>ПС</item>
+        <item>С</item>
+        <item>ПдС</item>
         <item>Пд</item>
-        <item>ПдЗх</item>
-        <item>Зх</item>
-        <item>ПнЗх</item>
+        <item>ПдЗ</item>
+        <item>З</item>
+        <item>ПЗ</item>
     </string-array>
 </resources>

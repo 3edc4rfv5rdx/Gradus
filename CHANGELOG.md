@@ -3,6 +3,7 @@
 > N=new feature, E=error fix, F=fine-tune, R=refactor, I=infrastructure
 
 ## Unreleased
+- F: Ukrainian wind directions are shorter: П, Пд, С, З.
 - F: Rain and snow amounts are black on their blue pill, easier to read.
 - F: Saved cities are removed with a cross instead of a bin.
 ## v0.1.23 (2026-11-25)
